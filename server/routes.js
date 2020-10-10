@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getSeats } = require("./handlers");
+const { getSeats, bookSeat } = require("./handlers");
 
 const NUM_OF_ROWS = 8;
 const SEATS_PER_ROW = 12;
@@ -51,7 +51,12 @@ router.get("/api/seat-availability", async (req, res) => {
   let new_seats = await getSeats(req, res);
   let booked_seats = new_seats.filter((seat) => seat.isBooked);
   console.log(booked_seats);
-
+  state = {
+    seats: new_seats,
+    bookedSeats: booked_seats,
+    numOfRows: 8,
+    seatsPerRow: 12,
+  };
   return res.json({
     seats: new_seats,
     bookedSeats: booked_seats,
@@ -72,16 +77,24 @@ let lastBookingAttemptSucceeded = false;
 router.post("/api/book-seat", async (req, res) => {
   const { seatId, creditCard, expiration } = req.body;
 
-  if (!state) {
-    state = {
-      bookedSeats: randomlyBookSeats(30),
-    };
-  }
+  let new_seats = await getSeats(req, res);
+  let booked_seats = new_seats.filter((seat) => seat.isBooked);
 
-  await delay(Math.random() * 3000);
+  console.log(booked_seats);
+  // if (!state) {
+  //   state = {
+  //     bookedSeats: randomlyBookSeats(30),
+  //   };
+  // }
 
-  const isAlreadyBooked = !!state.bookedSeats[seatId];
-  if (isAlreadyBooked) {
+  // await delay(Math.random() * 3000);
+
+  let found_seat = booked_seats.find((seat) => seat._id === seatId);
+
+  // const isAlreadyBooked = !!booked_seats[seatId];
+  console.log(found_seat);
+
+  if (found_seat) {
     return res.status(400).json({
       message: "This seat has already been booked!",
     });
@@ -94,21 +107,25 @@ router.post("/api/book-seat", async (req, res) => {
     });
   }
 
-  if (lastBookingAttemptSucceeded) {
-    lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
+  let booked_seat = await bookSeat(seatId);
 
-    return res.status(500).json({
-      message: "An unknown error has occurred. Please try your request again.",
-    });
-  }
+  // if (lastBookingAttemptSucceeded) {
+  //   lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
 
-  lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
+  //   return res.status(500).json({
+  //     message: "An unknown error has occurred. Please try your request again.",
+  //   });
+  // }
 
-  state.bookedSeats[seatId] = true;
+  // lastBookingAttemptSucceeded = !lastBookingAttemptSucceeded;
+
+  // state.bookedSeats[seatId] = true;
 
   return res.status(200).json({
     status: 200,
     success: true,
+    booked: booked_seat,
+    booked_id: seatId,
   });
 });
 

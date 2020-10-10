@@ -25,4 +25,26 @@ const getSeats = async (req, res) => {
   }
 };
 
-module.exports = { getSeats };
+const bookSeat = async (seatID) => {
+  try {
+    // console.log(MONGO_URI);
+    const client = await MongoClient(MONGO_URI, options);
+
+    await client.connect();
+
+    const db = client.db("m6-2");
+
+    let oneUpdated = await db
+      .collection("seats")
+      .updateOne({ _id: seatID }, { $set: { isBooked: true } });
+
+    // console.info(oneUpdated);
+    return oneUpdated;
+  } catch (error) {
+    console.log("error");
+    console.info({ message: error.message });
+    return error;
+  }
+};
+
+module.exports = { getSeats, bookSeat };
