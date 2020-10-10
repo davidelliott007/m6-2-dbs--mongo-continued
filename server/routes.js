@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { getSeats } = require("./handlers");
 
 const NUM_OF_ROWS = 8;
 const SEATS_PER_ROW = 12;
@@ -41,18 +42,29 @@ const randomlyBookSeats = (num) => {
 let state;
 
 router.get("/api/seat-availability", async (req, res) => {
-  if (!state) {
-    state = {
-      bookedSeats: randomlyBookSeats(30),
-    };
-  }
+  // if (!state) {
+  //   state = {
+  //     bookedSeats: randomlyBookSeats(30),
+  //   };
+  // }
+
+  let new_seats = await getSeats(req, res);
+  let booked_seats = new_seats.filter((seat) => seat.isBooked);
+  console.log(booked_seats);
 
   return res.json({
-    seats: seats,
-    bookedSeats: state.bookedSeats,
+    seats: new_seats,
+    bookedSeats: booked_seats,
     numOfRows: 8,
     seatsPerRow: 12,
   });
+
+  // return res.json({
+  //   seats: seats,
+  //   bookedSeats: state.bookedSeats,
+  //   numOfRows: 8,
+  //   seatsPerRow: 12,
+  // });
 });
 
 let lastBookingAttemptSucceeded = false;

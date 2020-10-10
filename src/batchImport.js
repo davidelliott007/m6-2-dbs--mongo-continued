@@ -49,7 +49,7 @@ async function updateMany() {
         },
       },
       {
-        $set: { booked: common_value },
+        $set: { isBooked: common_value },
       }
     );
 
@@ -145,15 +145,17 @@ async function initialUpload() {
 
     let inserted = await db.collection("seats").insertMany(seat_data);
     console.info(inserted);
+    client.close();
+    console.log("disconnected!");
   } catch (error) {
     console.log("error");
     console.info({ message: error.message });
   }
-  client.close();
-  console.log("disconnected!");
 }
 
 //bacthImport();
 // initialUpload();
 // updateOne();
 updateMany();
+
+//Menlo, Monaco, 'Courier New', monospace
