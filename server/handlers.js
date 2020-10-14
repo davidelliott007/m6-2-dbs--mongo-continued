@@ -38,7 +38,7 @@ const bookSeat = async (seatID) => {
       .collection("seats")
       .updateOne({ _id: seatID }, { $set: { isBooked: true } });
 
-    // console.info(oneUpdated);
+    console.info(oneUpdated);
     return oneUpdated;
   } catch (error) {
     console.log("error");
