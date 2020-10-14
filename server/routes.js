@@ -48,23 +48,22 @@ router.get("/api/seat-availability", async (req, res) => {
   //   };
   // }
 
-  let new_seats = await getSeats(req, res);
-  let booked_seats = new_seats.filter((seat) => seat.isBooked);
+  let seats_from_DB = await getSeats(req, res);
+  let booked_seats = seats_from_DB.filter((seat) => seat.isBooked);
   console.log(booked_seats);
   state = {
-    seats: new_seats,
+    seats: seats_from_DB,
     bookedSeats: booked_seats,
     numOfRows: 8,
     seatsPerRow: 12,
   };
-  console.log({ new_seats });
 
   // let's conform the data to the format that the front end actually wants
-  let conformed_seats = [];
-  new_seats.forEach((seat) => {
+  let conformed_seats = {};
+
+  seats_from_DB.forEach((seat) => {
     conformed_seats[seat._id] = { price: seat.price, isBooked: seat.isBooked };
   });
-  console.log({ conformed_seats });
 
   return res.json({
     seats: conformed_seats,
@@ -72,13 +71,6 @@ router.get("/api/seat-availability", async (req, res) => {
     numOfRows: 8,
     seatsPerRow: 12,
   });
-
-  // return res.json({
-  //   seats: seats,
-  //   bookedSeats: state.bookedSeats,
-  //   numOfRows: 8,
-  //   seatsPerRow: 12,
-  // });
 });
 
 let lastBookingAttemptSucceeded = false;
