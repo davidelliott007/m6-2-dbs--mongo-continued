@@ -57,8 +57,17 @@ router.get("/api/seat-availability", async (req, res) => {
     numOfRows: 8,
     seatsPerRow: 12,
   };
+  console.log({ new_seats });
+
+  // let's conform the data to the format that the front end actually wants
+  let conformed_seats = [];
+  new_seats.forEach((seat) => {
+    conformed_seats[seat._id] = { price: seat.price, isBooked: seat.isBooked };
+  });
+  console.log({ conformed_seats });
+
   return res.json({
-    seats: new_seats,
+    seats: conformed_seats,
     bookedSeats: booked_seats,
     numOfRows: 8,
     seatsPerRow: 12,
